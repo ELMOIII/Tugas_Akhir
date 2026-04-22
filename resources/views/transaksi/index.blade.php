@@ -34,31 +34,31 @@
     </thead>
 
     <tbody>
-        <tr>
-            <td class="p-2">
-                <select name="barang_id[]" class="barang select2">
-                    <option value="">Pilih Barang</option>
-                    @foreach ($barangs as $barang)
-                        <option value="{{ $barang->id }}" data-harga="{{ $barang->harga_jual }}">
-                            {{ $barang->nama_barang }}
-                        </option>
-                    @endforeach
-                </select>
-            </td>
+    <tr class="row-item">
+        <td class="p-2">
+            <select name="barang_id[]" class="barang select2 w-full">
+                <option value="">Pilih Barang</option>
+                @foreach ($barangs as $barang)
+                    <option value="{{ $barang->id }}" data-harga="{{ $barang->harga_jual }}">
+                        {{ $barang->nama_barang }}
+                    </option>
+                @endforeach
+            </select>
+        </td>
 
-            <td class="p-2 harga text-center">0</td>
+        <td class="p-2 harga text-center">0</td>
 
-            <td class="p-2">
-                <input type="number" name="jumlah[]" class="border p-2 w-full jumlah" min="1" value="1">
-            </td>
+        <td class="p-2">
+            <input type="number" name="jumlah[]" class="jumlah border p-2 w-full" value="1">
+        </td>
 
-            <td class="p-2 subtotal text-center">0</td>
+        <td class="p-2 subtotal text-center">0</td>
 
-            <td class="p-2 text-center">
-                <button type="button" class="hapus bg-red-500 text-white px-2 rounded">X</button>
-            </td>
-        </tr>
-    </tbody>
+        <td class="p-2 text-center">
+            <button type="button" class="hapus bg-red-500 text-white px-2 rounded">X</button>
+        </td>
+    </tr>
+</tbody>
 </table>
 
 <button type="button" id="tambah"
@@ -110,7 +110,6 @@
 <script>
 $(document).ready(function () {
 
-    // 🔥 INIT SELECT2
     function initSelect2() {
         $('.select2').select2({
             placeholder: "Cari barang...",
@@ -120,7 +119,6 @@ $(document).ready(function () {
 
     initSelect2();
 
-    // 🔥 HITUNG TOTAL
     function hitungTotal() {
         let total = 0;
         $(".subtotal").each(function () {
@@ -129,7 +127,9 @@ $(document).ready(function () {
         $("#total").text(total);
     }
 
-    // 🔥 SAAT PILIH BARANG (FIX SELECT2)
+    // =========================
+    // PILIH BARANG
+    // =========================
     $(document).on('change', '.barang', function () {
         let harga = $(this).find(':selected').data('harga') || 0;
         let row = $(this).closest('tr');
@@ -140,12 +140,11 @@ $(document).ready(function () {
         row.find('.subtotal').text(harga * jumlah);
 
         hitungTotal();
-
-        // 🔥 fokus ke jumlah setelah pilih barang
-        row.find('.jumlah').focus();
     });
 
-    // 🔥 SAAT INPUT JUMLAH
+    // =========================
+    // INPUT JUMLAH
+    // =========================
     $(document).on('input', '.jumlah', function () {
         let row = $(this).closest('tr');
 
@@ -157,20 +156,31 @@ $(document).ready(function () {
         hitungTotal();
     });
 
-    // 🔥 TAMBAH BARIS
+    // =========================
+    // TAMBAH BARIS (FIX SELECT2)
+    // =========================
     $("#tambah").click(function () {
-        let row = $("#table-transaksi tbody tr:first").clone();
 
-        row.find("input").val(1);
-        row.find(".harga, .subtotal").text(0);
-        row.find("select").val("");
+    let row = $(".row-item:first").clone();
 
-        $("#table-transaksi tbody").append(row);
+    // reset isi
+    row.find("select").val('').removeClass('select2-hidden-accessible').next('.select2').remove();
+    row.find("input").val(1);
+    row.find(".harga, .subtotal").text(0);
 
-        initSelect2();
+    $("#table-transaksi tbody").append(row);
+
+    // init ulang select2 hanya untuk yang baru
+    row.find('.select2').select2({
+        placeholder: "Cari barang...",
+        width: '100%'
     });
 
-    // 🔥 HAPUS BARIS
+});
+
+    // =========================
+    // HAPUS BARIS
+    // =========================
     $(document).on('click', '.hapus', function () {
         if ($("#table-transaksi tbody tr").length > 1) {
             $(this).closest('tr').remove();
@@ -178,13 +188,24 @@ $(document).ready(function () {
         }
     });
 
-    // 🔥 HITUNG KEMBALIAN
+    // =========================
+    // KEMBALIAN
+    // =========================
     $("#bayar").on('input', function () {
         let bayar = parseInt($(this).val()) || 0;
         let total = parseInt($("#total").text()) || 0;
 
         let kembalian = bayar - total;
         $("#kembalian").text(kembalian > 0 ? kembalian : 0);
+    });
+
+    // =========================
+    // ❗ CEGAH ENTER SUBMIT
+    // =========================
+    $(document).on('keydown', 'input', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+        }
     });
 
 });

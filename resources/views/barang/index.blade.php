@@ -66,7 +66,7 @@
 
             <td class="p-3">{{ $loop->iteration }}</td>
             <td class="p-3">{{ $barang->nama_barang }}</td>
-            <td class="p-3">{{ $barang->kategori->nama_kategori }}</td>
+            <td class="p-3">{{ $barang->kategori->nama_kategori ?? '-' }}</td>
             <td class="p-2">Rp {{ number_format($barang->harga_beli) }}</td>
             <td class="p-2">Rp {{ number_format($barang->harga_jual) }}</td>
             <td class="p-3">{{ $barang->stok }}</td>
@@ -74,7 +74,7 @@
 
             <td class="p-3 flex justify-center gap-2">
 
-                <a href="/barang/{{ $barang->id }}/edit"
+                <a  ?? '-'href="/barang/{{ $barang->id }}/edit"
                    class="bg-yellow-500 text-white px-3 py-1 rounded">
                    Edit
                 </a>
