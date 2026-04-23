@@ -10,27 +10,18 @@ use Illuminate\Support\Facades\DB;
 
 class TransaksiController extends Controller
 {
-    // =========================
-    // 📌 HALAMAN TRANSAKSI (POS)
-    // =========================
     public function index()
     {
         $barangs = Barang::all();
         return view('transaksi.index', compact('barangs'));
     }
 
-    // =========================
-    // 📌 STRUK TRANSAKSI
-    // =========================
     public function show($id)
     {
         $transaksi = Transaksi::with('details.barang', 'user')->findOrFail($id);
         return view('transaksi.struk', compact('transaksi'));
     }
 
-    // =========================
-    // 📌 LAPORAN
-    // =========================
     public function laporan(Request $request)
     {
         $query = Transaksi::query();
@@ -48,9 +39,6 @@ class TransaksiController extends Controller
         return view('transaksi.laporan', compact('transaksis', 'total'));
     }
 
-    // =========================
-    // 📌 SIMPAN TRANSAKSI (FINAL FIX)
-    // =========================
     public function store(Request $request)
     {
         $request->validate([
@@ -64,43 +52,39 @@ class TransaksiController extends Controller
 
         try {
             $total = 0;
-
-            // 🔥 LOOP ITEM DULU (tanpa create transaksi)
             $items = [];
 
             foreach ($request->barang_id as $key => $barang_id) {
 
-                // skip kalau kosong
                 if (!$barang_id) continue;
 
                 $barang = Barang::findOrFail($barang_id);
                 $jumlah = $request->jumlah[$key];
 
-                // cek stok
                 if ($barang->stok < $jumlah) {
                     DB::rollBack();
                     return back()->with('error', 'Stok tidak cukup untuk ' . $barang->nama_barang);
                 }
 
                 $subtotal = $barang->harga_jual * $jumlah;
+                $keuntungan = ($barang->harga_jual - $barang->harga_beli) * $jumlah;
 
                 $items[] = [
                     'barang' => $barang,
                     'barang_id' => $barang_id,
                     'jumlah' => $jumlah,
-                    'subtotal' => $subtotal
+                    'subtotal' => $subtotal,
+                    'keuntungan' => $keuntungan
                 ];
 
                 $total += $subtotal;
             }
 
-            // 🔥 VALIDASI BAYAR
             if ($request->bayar < $total) {
                 DB::rollBack();
                 return back()->with('error', 'Uang tidak cukup!');
             }
 
-            // 🔥 BUAT TRANSAKSI
             $transaksi = Transaksi::create([
                 'tanggal' => now(),
                 'total' => $total,
@@ -110,14 +94,14 @@ class TransaksiController extends Controller
                 'user_id' => auth()->id()
             ]);
 
-            // 🔥 SIMPAN DETAIL + KURANGI STOK
             foreach ($items as $item) {
 
                 DetailTransaksi::create([
                     'transaksi_id' => $transaksi->id,
                     'barang_id' => $item['barang_id'],
                     'jumlah' => $item['jumlah'],
-                    'subtotal' => $item['subtotal']
+                    'subtotal' => $item['subtotal'],
+                    'keuntungan' => $item['keuntungan']
                 ]);
 
                 $item['barang']->stok -= $item['jumlah'];

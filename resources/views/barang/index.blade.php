@@ -4,18 +4,35 @@
 
 <h2 class="text-2xl font-bold mb-4">Data Barang Galatama</h2>
 
-{{-- NOTIFIKASI SUKSES --}}
+{{-- 🔥 NOTIFIKASI STOK MINIMUM --}}
+@if($warning->count())
+<script>
+Swal.fire({
+    icon: 'warning',
+    title: 'Stok Menipis!',
+    html: `
+        @foreach($warning as $w)
+            {{ $w->nama_barang }} ({{ $w->stok }})<br>
+        @endforeach
+    `
+});
+</script>
+@endif
+
+{{-- ✅ NOTIFIKASI SUCCESS --}}
 @if(session('success'))
 <div class="bg-green-200 p-3 mb-3 rounded">
     {{ session('success') }}
 </div>
 @endif
 
+{{-- 🔵 BUTTON TAMBAH --}}
 <a href="/barang/create"
    class="bg-blue-600 text-white px-4 py-2 rounded mb-4 inline-block hover:bg-blue-700">
    + Tambah Barang
 </a>
 
+{{-- 🔍 FILTER --}}
 <form method="GET" action="/barang" class="mb-4 flex items-center gap-3">
 
     <select name="kategori_id"
@@ -43,6 +60,8 @@
 
 </form>
 
+{{-- 🔥 TABLE --}}
+<div class="overflow-x-auto">
 <table class="w-full border border-gray-200">
 
     <thead class="bg-gray-200">
@@ -72,19 +91,23 @@
             <td class="p-3">{{ $barang->stok }}</td>
             <td class="p-3">{{ $barang->stok_minimum }}</td>
 
+            {{-- 🔥 AKSI --}}
             <td class="p-3 flex justify-center gap-2">
 
-                <a  ?? '-'href="/barang/{{ $barang->id }}/edit"
-                   class="bg-yellow-500 text-white px-3 py-1 rounded">
+                {{-- EDIT --}}
+                <a href="/barang/{{ $barang->id }}/edit"
+                   class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">
                    Edit
                 </a>
 
+                {{-- HAPUS --}}
                 <form action="/barang/{{ $barang->id }}" method="POST">
                     @csrf
                     @method('DELETE')
 
-                    <button onclick="return confirm('Yakin mau hapus?')"
-                        class="bg-red-600 text-white px-3 py-1 rounded">
+                    <button type="submit"
+                        onclick="return confirm('Yakin mau hapus?')"
+                        class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
                         Hapus
                     </button>
                 </form>
@@ -96,7 +119,7 @@
         @empty
 
         <tr>
-            <td colspan="6" class="text-center p-4">
+            <td colspan="8" class="text-center p-4">
                 Data belum ada
             </td>
         </tr>
@@ -106,5 +129,6 @@
     </tbody>
 
 </table>
+</div>
 
 @endsection
