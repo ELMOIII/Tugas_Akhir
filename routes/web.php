@@ -17,25 +17,45 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-Route::get('/laba-rugi', [TransaksiController::class, 'labaRugi']);
 
-Route::get('/pemasukan', [PemasukanController::class, 'index']);
-Route::get('/pemasukan/create', [PemasukanController::class, 'create']);
-Route::post('/pemasukan', [PemasukanController::class, 'store']);
-Route::delete('/pemasukan/{id}', [PemasukanController::class, 'destroy']);
-
+// 🔐 SEMUA FITUR MASUK AUTH
 Route::middleware(['auth'])->group(function () {
 
+    // =========================
+    // 📦 PROFILE
+    // =========================
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::get('/laporan', [TransaksiController::class, 'laporan']);
-    Route::get('/laba-rugi', [LaporanController::class, 'labaRugi']);
-    Route::get('/grafik', [LaporanController::class, 'grafik']);
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+
+    // =========================
+    // 📦 DATA UTAMA
+    // =========================
     Route::resource('barang', BarangController::class);
     Route::resource('transaksi', TransaksiController::class);
     Route::resource('pengeluaran', PengeluaranController::class);
+
+
+    // =========================
+    // 🎣 PEMASUKAN LOMBA
+    // =========================
+    Route::get('/pemasukan', [PemasukanController::class, 'index']);
+    Route::get('/pemasukan/create', [PemasukanController::class, 'create']);
+    Route::post('/pemasukan', [PemasukanController::class, 'store']);
+    Route::delete('/pemasukan/{id}', [PemasukanController::class, 'destroy']);
+
+
+    // =========================
+    // 📊 LAPORAN
+    // =========================
+    Route::get('/laporan', [TransaksiController::class, 'laporan']);
+
+    // 🔥 LABA RUGI (FINAL)
+    Route::get('/laba-rugi', [LaporanController::class, 'labaRugi']);
+
+    // 📈 GRAFIK
+    Route::get('/grafik', [LaporanController::class, 'grafik']);
 
 });
 

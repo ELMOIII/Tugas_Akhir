@@ -6,24 +6,33 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up()
+    public function up(): void
     {
         Schema::table('barangs', function (Blueprint $table) {
-            $table->integer('harga_beli')->after('nama_barang');
-            $table->integer('harga_jual')->after('harga_beli');
 
-            $table->dropColumn('harga'); // hapus harga lama
+            if (!Schema::hasColumn('barangs', 'harga_beli')) {
+                $table->integer('harga_beli');
+            }
+
+            if (!Schema::hasColumn('barangs', 'harga_jual')) {
+                $table->integer('harga_jual');
+            }
+
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::table('barangs', function (Blueprint $table) {
-            $table->integer('harga');
-            $table->dropColumn(['harga_beli', 'harga_jual']);
+
+            if (Schema::hasColumn('barangs', 'harga_beli')) {
+                $table->dropColumn('harga_beli');
+            }
+
+            if (Schema::hasColumn('barangs', 'harga_jual')) {
+                $table->dropColumn('harga_jual');
+            }
+
         });
     }
 };

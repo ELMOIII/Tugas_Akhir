@@ -8,7 +8,7 @@ use App\Models\Pengeluaran;
 
 class LaporanController extends Controller
 {
-    public function labaRugi(Request $request)
+    public function labaBersih(Request $request)
     {
         $queryMasuk = DetailTransaksi::query();
         $queryKeluar = Pengeluaran::query();
@@ -35,7 +35,7 @@ class LaporanController extends Controller
 
         $laba = $pendapatan - $pengeluaran;
 
-        return view('laporan.laba-rugi', compact(
+        return view('laporan.laba-bersih', compact(
             'pendapatan',
             'pengeluaran',
             'laba'

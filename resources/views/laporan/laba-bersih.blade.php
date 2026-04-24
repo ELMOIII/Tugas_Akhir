@@ -2,7 +2,7 @@
 
 @section('content')
 
-<h2 class="text-2xl font-bold mb-4">Laporan Laba Rugi</h2>
+<h2 class="text-2xl font-bold mb-4">Laporan Laba Bersih</h2>
 
 <form method="GET" class="flex gap-2 mb-4">
     <input type="date" name="tanggal_awal" class="border p-2 rounded">
@@ -28,7 +28,7 @@
     <hr class="my-3">
 
     <div class="flex justify-between font-bold text-lg">
-        <span>Laba / Rugi</span>
+        <span>Laba / Bersih</span>
         <span class="{{ $laba >= 0 ? 'text-green-600' : 'text-red-600' }}">
             Rp {{ number_format($laba) }}
         </span>
